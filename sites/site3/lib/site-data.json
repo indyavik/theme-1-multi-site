@@ -1,0 +1,53 @@
+{
+  "_meta": {
+    "schemaVersion": 1,
+    "locale": "en",
+    "availableLocales": ["en"]
+  },
+  "site": {
+    "brand": "Site 2 Co",
+    "city": "Portland, OR",
+    "slug": "site3",
+    "locale": "en",
+    "tone": "friendly"
+  },
+  "features": {
+    "blogEnabled": true
+  },
+  "pages": {
+    "home": {
+      "sections": [
+        {
+          "id": "hero-main",
+          "type": "hero",
+          "enabled": true,
+          "region": "main",
+          "order": 10,
+          "data": {
+            "shortHeadline": "Hello from Site 2 Co",
+            "subHeadline": "Friendly bookkeeping with a human touch",
+            "primaryCta": { "label": "Talk to us", "href": "#contact" },
+            "secondaryCta": { "label": "Services", "href": "#services" },
+            "heroImage": "/accountant.png"
+          }
+        },
+        {
+          "id": "about",
+          "type": "about",
+          "enabled": true,
+          "region": "main",
+          "order": 20,
+          "data": {
+            "title": "About Site 2 Co",
+            "story": "We help local businesses stay on top of their books.",
+            "credentials": ["QuickBooks ProAdvisor"],
+            "badges": [],
+            "aboutImage": ""
+          }
+        }
+      ]
+    }
+  }
+}
+
+
