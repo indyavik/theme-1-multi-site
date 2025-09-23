@@ -5,8 +5,8 @@ import { EditableImage } from "@/components/ui/editable-image"
 interface TeamSectionProps {
   data: {
     title: string
-    subtitle?: string
-    items: Array<{ name: string; role: string; city?: string; bio?: string; image?: string }>
+    subtitle: string
+    items: Array<{ name: string; role: string; city: string; bio: string; image: string }>
   }
 }
 
@@ -20,13 +20,11 @@ export function TeamSection({ data }: TeamSectionProps) {
             value={data.title}
             className="font-sans font-bold text-3xl lg:text-4xl text-slate-900 mb-2 block"
           />
-          {typeof data.subtitle === 'string' && (
-            <EditableText
-              path="sections.team.subtitle"
-              value={data.subtitle}
-              className="text-slate-600 block"
-            />
-          )}
+          <EditableText
+            path="sections.team.subtitle"
+            value={data.subtitle}
+            className="text-slate-600 block"
+          />
         </div>
 
         <EditableList
@@ -39,7 +37,7 @@ export function TeamSection({ data }: TeamSectionProps) {
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-white shadow">
                   <EditableImage
                     path={`sections.team.items.${index}.image`}
-                    src={member.image || "/placeholder-user.jpg"}
+                    src={member.image}
                     alt={member.name}
                     width={64}
                     height={64}
@@ -66,13 +64,13 @@ export function TeamSection({ data }: TeamSectionProps) {
               <CardContent>
                 <EditableText
                   path={`sections.team.items.${index}.city`}
-                  value={member.city || ''}
+                  value={member.city}
                   className="text-xs text-slate-500 mb-2 block"
                   placeholder="City"
                 />
                 <EditableText
                   path={`sections.team.items.${index}.bio`}
-                  value={member.bio || ''}
+                  value={member.bio}
                   className="text-slate-700 text-sm block"
                   placeholder="Short bio"
                 />

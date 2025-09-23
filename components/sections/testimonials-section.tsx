@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Star, Quote } from "lucide-react"
-import { EditableText } from "@/components/ui/editable-text"
+import { EditableText, EditableList } from "@/components/ui/editable-text"
 import { EditableImage } from "@/components/ui/editable-image"
+import { usePreviewContext } from "@/lib/preview-context"
 
 interface TestimonialsSectionProps {
   data: {
@@ -28,17 +29,19 @@ export function TestimonialsSection({ data }: TestimonialsSectionProps) {
           />
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {data.items.map((testimonial, index) => (
-            <Card key={index} className="bg-slate-50 border-0 shadow-lg">
+        <EditableList
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+          path="sections.testimonials.items"
+          items={data.items}
+          renderItem={(testimonial, index) => (
+            <Card className="bg-slate-50 border-0 shadow-lg">
               <CardContent className="p-6">
                 <div className="flex items-center mb-4">
                   <Quote className="w-8 h-8 text-emerald-600 mr-2" />
-                  <div className="flex">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
+                  <StarRating
+                    rating={testimonial.rating || 5}
+                    path={`sections.testimonials.items.${index}.rating`}
+                  />
                 </div>
                 
                 <EditableText
@@ -81,9 +84,45 @@ export function TestimonialsSection({ data }: TestimonialsSectionProps) {
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
+          )}
+        />
       </div>
     </section>
+  )
+}
+
+// Star Rating Component for Testimonials
+function StarRating({ rating, path }: { rating: number; path: string }) {
+  const { isPreviewMode, updateField } = usePreviewContext()
+  
+  const handleStarClick = (newRating: number) => {
+    if (isPreviewMode) {
+      updateField(path, newRating)
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`w-4 h-4 ${
+            star <= rating 
+              ? 'text-yellow-400 fill-current' 
+              : 'text-gray-300'
+          } ${
+            isPreviewMode 
+              ? 'cursor-pointer hover:text-yellow-300 transition-colors' 
+              : ''
+          }`}
+          onClick={() => handleStarClick(star)}
+        />
+      ))}
+      {isPreviewMode && (
+        <span className="text-xs text-slate-500 ml-2">
+          {rating}/5 (click to change)
+        </span>
+      )}
+    </div>
   )
 }
