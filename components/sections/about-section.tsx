@@ -8,8 +8,8 @@ interface AboutSectionProps {
   data: {
     title: string
     story: string
-    credentials: string[]
-    badges: string[]
+    credentials: Array<{ name: string }>
+    badges: Array<{ name: string }>
     aboutImage?: string
   }
 }
@@ -41,8 +41,8 @@ export function AboutSection({ data }: AboutSectionProps) {
                   {data.credentials.map((credential, index) => (
                     <Badge key={index} variant="secondary" className="bg-emerald-100 text-emerald-800">
                       <EditableText
-                        path={`sections.about.credentials.${index}`}
-                        value={credential}
+                        path={`sections.about.credentials.${index}.name`}
+                        value={credential.name}
                         className="block"
                       />
                     </Badge>
@@ -59,8 +59,8 @@ export function AboutSection({ data }: AboutSectionProps) {
                   {data.badges.map((badge, index) => (
                     <Badge key={index} variant="outline" className="border-emerald-200 text-emerald-700">
                       <EditableText
-                        path={`sections.about.badges.${index}`}
-                        value={badge}
+                        path={`sections.about.badges.${index}.name`}
+                        value={badge.name}
                         className="block"
                       />
                     </Badge>

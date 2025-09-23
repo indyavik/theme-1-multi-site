@@ -47,11 +47,11 @@
           "title": "About TestCo",
           "story": "We provide test services.",
           "credentials": [
-            "QuickBooks ProAdvisor",
-            "Xero Certified"
+            { "name": "QuickBooks ProAdvisor" },
+            { "name": "Xero Certified" }
           ],
           "badges": [
-            "BBB Accredited"
+            { "name": "BBB Accredited" }
           ],
           "aboutImage": ""
         }
@@ -176,7 +176,7 @@
         }
       },
       {
-        "id": "why-choose-us",
+        "id": "whyChooseUs",
         "type": "whyChooseUs",
         "enabled": true,
         "region": "main",
@@ -184,11 +184,11 @@
         "data": {
           "title": "Why Choose TestCo",
           "bullets": [
-            "10+ years of bookkeeping experience",
-            "QuickBooks ProAdvisor certified",
-            "Remote and secure cloud-based systems",
-            "Monthly financial reports included",
-            "Dedicated account manager"
+            { "name": "10+ years of bookkeeping experience" },
+            { "name": "QuickBooks ProAdvisor certified" },
+            { "name": "Remote and secure cloud-based systems" },
+            { "name": "Monthly financial reports included" },
+            { "name": "Dedicated account manager" }
           ]
         }
       },
@@ -211,7 +211,7 @@
         }
       },
       {
-        "id": "blog-teaser",
+        "id": "blogTeaser",
         "type": "blogTeaser",
         "enabled": true,
         "region": "main",

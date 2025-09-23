@@ -22,7 +22,7 @@ export function BlogTeaserSection({ data }: BlogTeaserSectionProps) {
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="text-center mb-12">
           <EditableText
-            path="sections.blog-teaser.title"
+            path="sections.blogTeaser.title"
             value={data.title}
             className="font-sans font-bold text-3xl lg:text-4xl text-slate-900 mb-4 block"
           />
@@ -34,7 +34,7 @@ export function BlogTeaserSection({ data }: BlogTeaserSectionProps) {
               {post.image && (
                 <div className="aspect-video overflow-hidden">
                   <EditableImage
-                    path={`sections.blog-teaser.items.${index}.image`}
+                    path={`sections.blogTeaser.items.${index}.image`}
                     src={post.image}
                     alt={post.title}
                     width={400}
@@ -46,7 +46,7 @@ export function BlogTeaserSection({ data }: BlogTeaserSectionProps) {
               <CardHeader>
                 <CardTitle className="text-xl font-semibold text-slate-900">
                   <EditableText
-                    path={`sections.blog-teaser.items.${index}.title`}
+                    path={`sections.blogTeaser.items.${index}.title`}
                     value={post.title}
                     className="block"
                   />
@@ -54,7 +54,7 @@ export function BlogTeaserSection({ data }: BlogTeaserSectionProps) {
                 <div className="flex items-center gap-2 text-sm text-slate-500">
                   <Calendar className="w-4 h-4" />
                   <EditableText
-                    path={`sections.blog-teaser.items.${index}.date`}
+                    path={`sections.blogTeaser.items.${index}.date`}
                     value={post.date}
                     className="block"
                   />
@@ -62,7 +62,7 @@ export function BlogTeaserSection({ data }: BlogTeaserSectionProps) {
               </CardHeader>
               <CardContent>
                 <EditableText
-                  path={`sections.blog-teaser.items.${index}.excerpt`}
+                  path={`sections.blogTeaser.items.${index}.excerpt`}
                   value={post.excerpt}
                   className="text-slate-600 mb-4 block"
                 />
