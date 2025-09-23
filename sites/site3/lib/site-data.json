@@ -27,7 +27,7 @@
                   "region": "main",
                   "order": 10,
                   "data": {
-                      "shortHeadline": "Hello from Site 2 Co-2",
+                      "shortHeadline": "Hello from Site 2 Co- presist check",
                       "subHeadline": "Friendly bookkeeping with a human touch",
                       "primaryCta": {
                           "label": "Talk to us",
@@ -62,9 +62,10 @@
                   "enabled": true,
                   "region": "main",
                   "order": 30,
-                  "data": {
-                      "title": "Our Services",
-                      "items": [
+                "data": {
+                    "title": "Our Services",
+                    "subtitle": "Comprehensive bookkeeping solutions tailored to your business needs",
+                    "items": [
                           {
                               "name": "Service 1",
                               "description": "Description of service 1",

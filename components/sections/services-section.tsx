@@ -6,6 +6,7 @@ import { EditableImage } from "@/components/ui/editable-image"
 interface ServicesSectionProps {
   data: {
     title: string
+    subtitle: string
     items: Array<{
       name: string
       description: string
@@ -32,7 +33,11 @@ export function ServicesSection({ data }: ServicesSectionProps) {
             value={data.title}
             className="font-sans font-bold text-3xl lg:text-4xl text-slate-900 mb-4 block"
           />
-          <p className="text-lg text-slate-600">Comprehensive bookkeeping solutions tailored to your business needs</p>
+          <EditableText
+            path="sections.services.subtitle"
+            value={data.subtitle}
+            className="text-lg text-slate-600 block"
+          />
         </div>
 
         <EditableList

@@ -85,6 +85,7 @@ export const siteSchema = {
       allowedRegions: ['main'],
       schema: {
         title: { type: "string", editable: true, localized: true, maxLength: 100, description: "Services section title" },
+        subtitle: { type: "string", editable: true, localized: true, maxLength: 200, description: "Services section subtitle" },
         items: {
           type: "array",
           editable: true,
@@ -100,6 +101,7 @@ export const siteSchema = {
       },
       defaultData: {
         title: 'Our Services',
+        subtitle: 'Comprehensive bookkeeping solutions tailored to your business needs',
         items: [
           { name: 'Service 1', description: 'Description of service 1', price: '$100', image: '' }
         ]

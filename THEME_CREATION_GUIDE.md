@@ -114,7 +114,7 @@ export const siteSchema = {
   "sections": [
     { "id": "hero-main", "type": "hero", "enabled": true, "order": 10, "data": { "shortHeadline": "…", "subHeadline": "…", "primaryCta": { "label": "Get Started", "href": "#contact" }, "secondaryCta": { "label": "Learn More", "href": "#about" }, "heroImage": "/placeholder.jpg" } },
     { "id": "services", "type": "services", "enabled": true, "order": 30, "data": { "title": "Our Services", "items": [ { "name": "Monthly Bookkeeping", "description": "…", "price": "$$", "image": "" } ] } },
-    { "id": "industries-served", "type": "industriesServed", "enabled": true, "order": 40, "data": { "title": "Industries We Serve", "items": [ "Retail & E‑commerce" ] } }
+    { "id": "industriesServed", "type": "industriesServed", "enabled": true, "order": 40, "data": { "title": "Industries We Serve", "items": [ "Retail & E‑commerce" ] } }
   ]
 }
 ```

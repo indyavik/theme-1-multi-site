@@ -64,6 +64,7 @@
         "order": 30,
         "data": {
           "title": "Our Services",
+          "subtitle": "Comprehensive bookkeeping solutions tailored to your business needs",
           "items": [
             {
               "name": "Monthly Bookkeeping",
@@ -192,7 +193,7 @@
         }
       },
       {
-        "id": "industries-served",
+        "id": "industriesServed",
         "type": "industriesServed",
         "enabled": true,
         "region": "main",
