@@ -1,53 +1,257 @@
 {
   "_meta": {
-    "schemaVersion": 1,
-    "locale": "en",
-    "availableLocales": ["en"]
+      "schemaVersion": 1,
+      "locale": "en",
+      "availableLocales": [
+          "en"
+      ],
+      "siteId": "site3"
   },
   "site": {
-    "brand": "Site 2 Co",
-    "city": "Portland, OR",
-    "slug": "site3",
-    "locale": "en",
-    "tone": "friendly"
+      "brand": "Site 2 Co",
+      "city": "Portland, OR",
+      "slug": "site3",
+      "locale": "en",
+      "tone": "friendly"
   },
   "features": {
-    "blogEnabled": true
+      "blogEnabled": true
   },
   "pages": {
-    "home": {
-      "sections": [
-        {
-          "id": "hero-main",
-          "type": "hero",
-          "enabled": true,
-          "region": "main",
-          "order": 10,
-          "data": {
-            "shortHeadline": "Hello from Site 2 Co",
-            "subHeadline": "Friendly bookkeeping with a human touch",
-            "primaryCta": { "label": "Talk to us", "href": "#contact" },
-            "secondaryCta": { "label": "Services", "href": "#services" },
-            "heroImage": "/accountant.png"
-          }
-        },
-        {
-          "id": "about",
-          "type": "about",
-          "enabled": true,
-          "region": "main",
-          "order": 20,
-          "data": {
-            "title": "About Site 2 Co",
-            "story": "We help local businesses stay on top of their books.",
-            "credentials": ["QuickBooks ProAdvisor"],
-            "badges": [],
-            "aboutImage": ""
-          }
-        }
-      ]
-    }
+      "home": {
+          "sections": [
+              {
+                  "id": "hero-main",
+                  "type": "hero",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 10,
+                  "data": {
+                      "shortHeadline": "Hello from Site 2 Co-2",
+                      "subHeadline": "Friendly bookkeeping with a human touch",
+                      "primaryCta": {
+                          "label": "Talk to us",
+                          "href": "#contact"
+                      },
+                      "secondaryCta": {
+                          "label": "Services",
+                          "href": "#services"
+                      },
+                      "heroImage": "/accountant.png"
+                  }
+              },
+              {
+                  "id": "about",
+                  "type": "about",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 20,
+                  "data": {
+                      "title": "About Site 2 Co",
+                      "story": "We help local businesses stay on top of their books.",
+                      "credentials": [
+                          "QuickBooks ProAdvisor"
+                      ],
+                      "badges": [],
+                      "aboutImage": ""
+                  }
+              },
+              {
+                  "id": "services",
+                  "type": "services",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 30,
+                  "data": {
+                      "title": "Our Services",
+                      "items": [
+                          {
+                              "name": "Service 1",
+                              "description": "Description of service 1",
+                              "price": "$100",
+                              "image": ""
+                          }
+                      ]
+                  }
+              }
+          ]
+      },
+      "service-detail": {
+          "sections": [
+              {
+                  "id": "monthly-bookkeeping-hero",
+                  "type": "serviceHero",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 10,
+                  "serviceSlug": "monthly-bookkeeping",
+                  "data": {
+                      "title": "Monthly Bookkeeping",
+                      "subtitle": "Comprehensive monthly financial management",
+                      "heroImage": "/accountant.png"
+                  }
+              },
+              {
+                  "id": "monthly-bookkeeping-description",
+                  "type": "serviceDescription",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 20,
+                  "serviceSlug": "monthly-bookkeeping",
+                  "data": {
+                      "description": "Our monthly bookkeeping service provides complete financial management for your business. We handle all aspects of your bookkeeping including transaction recording, bank reconciliation, accounts payable and receivable management, and monthly financial reporting. Our experienced team ensures accuracy and timeliness in all financial records, giving you peace of mind and valuable insights into your business performance.",
+                      "features": [
+                          "Transaction recording and categorization",
+                          "Bank and credit card reconciliation",
+                          "Accounts payable management",
+                          "Accounts receivable tracking",
+                          "Monthly financial reports",
+                          "Quarterly tax preparation support"
+                      ]
+                  }
+              },
+              {
+                  "id": "monthly-bookkeeping-pricing",
+                  "type": "servicePricing",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 30,
+                  "serviceSlug": "monthly-bookkeeping",
+                  "data": {
+                      "title": "Pricing & Packages",
+                      "basePrice": 300,
+                      "currency": "USD",
+                      "billing": "monthly",
+                      "ctaText": "Get Started"
+                  }
+              },
+              {
+                  "id": "monthly-bookkeeping-contact",
+                  "type": "serviceContact",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 40,
+                  "serviceSlug": "monthly-bookkeeping",
+                  "data": {
+                      "title": "Ready to Get Started?",
+                      "message": "Contact us today to discuss your Monthly Bookkeeping needs.",
+                      "ctaText": "Contact Us"
+                  }
+              },
+              {
+                  "id": "payroll-processing-hero",
+                  "type": "serviceHero",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 10,
+                  "serviceSlug": "payroll-processing",
+                  "data": {
+                      "title": "Payroll Processing",
+                      "subtitle": "Complete payroll management for your team",
+                      "heroImage": "/accountant.png"
+                  }
+              },
+              {
+                  "id": "payroll-processing-description",
+                  "type": "serviceDescription",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 20,
+                  "serviceSlug": "payroll-processing",
+                  "data": {
+                      "description": "Streamline your payroll process with our comprehensive payroll processing service. We handle everything from employee onboarding to tax filings, ensuring compliance with all federal and state regulations. Our service includes direct deposit setup, tax calculations, year-end reporting, and ongoing support for all payroll-related questions.",
+                      "features": [
+                          "Employee onboarding and setup",
+                          "Direct deposit processing",
+                          "Tax calculations and withholdings",
+                          "Quarterly tax filings",
+                          "Year-end W-2 and 1099 preparation",
+                          "Ongoing payroll support"
+                      ]
+                  }
+              },
+              {
+                  "id": "payroll-processing-pricing",
+                  "type": "servicePricing",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 30,
+                  "serviceSlug": "payroll-processing",
+                  "data": {
+                      "title": "Pricing & Packages",
+                      "basePrice": 150,
+                      "currency": "USD",
+                      "billing": "monthly",
+                      "ctaText": "Get Started"
+                  }
+              },
+              {
+                  "id": "payroll-processing-contact",
+                  "type": "serviceContact",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 40,
+                  "serviceSlug": "payroll-processing",
+                  "data": {
+                      "title": "Ready to Get Started?",
+                      "message": "Contact us today to discuss your Payroll Processing needs.",
+                      "ctaText": "Contact Us"
+                  }
+              }
+          ]
+      },
+      "about-us": {
+          "sections": [
+              {
+                  "id": "about-us-hero",
+                  "type": "aboutUsHero",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 10,
+                  "data": {
+                      "title": "About Us",
+                      "content": "Welcome to our company! We are passionate about providing exceptional bookkeeping services to small and medium-sized businesses. With over 10 years of experience in the industry, our team of certified professionals is dedicated to helping your business thrive through accurate financial management and strategic insights.",
+                      "image": "/accountant.png"
+                  }
+              }
+          ]
+      },
+      "blog-index": {
+          "sections": [
+              {
+                  "id": "blog-list",
+                  "type": "blogList",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 10,
+                  "data": {
+                      "title": "Latest Articles & Insights",
+                      "intro": "",
+                      "pageSize": 10,
+                      "layout": "list",
+                      "showDates": true,
+                      "showAuthors": false
+                  }
+              }
+          ]
+      },
+      "blog-post": {
+          "sections": [
+              {
+                  "id": "blog-article",
+                  "type": "blogArticle",
+                  "enabled": true,
+                  "region": "main",
+                  "order": 10,
+                  "data": {
+                      "heroTitleOverride": "",
+                      "heroImageOverride": "",
+                      "showToc": false,
+                      "showShare": true,
+                      "showAuthorBox": true
+                  }
+              }
+          ]
+      }
   }
 }
-
-

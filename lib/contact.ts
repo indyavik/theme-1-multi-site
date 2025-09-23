@@ -1,5 +1,4 @@
 import { getApiUrl, getAuthHeader } from './theme-config'
-import { SITE_SLUG } from './theme-config'
 
 export type ContactUsFields = Record<string, string>
 
@@ -21,7 +20,7 @@ export interface SubmitContactUsResult {
 }
 
 export async function submitContactUs({ siteSlug, fields, pagePath }: SubmitContactUsParams): Promise<SubmitContactUsResult> {
-  const effectiveSlug = siteSlug ?? SITE_SLUG
+  const effectiveSlug = siteSlug
   const payload: Record<string, any> = {
     ...fields,
     ...(effectiveSlug ? { siteSlug: effectiveSlug } : {}),

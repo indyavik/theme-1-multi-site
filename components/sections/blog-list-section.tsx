@@ -17,7 +17,7 @@ type BlogListItem = {
 export function BlogListSection({ data }: { data: any }) {
   const pageSize = data?.pageSize || 10;
   const { getValue } = usePreviewContext();
-  const siteSlug = (getValue('site')?.slug as string) || 'site';
+  const siteSlug = (getValue('site.slug') as string) || 'site';
   const [items, setItems] = useState<BlogListItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

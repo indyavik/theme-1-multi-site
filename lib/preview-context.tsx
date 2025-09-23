@@ -760,32 +760,33 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       if (position !== undefined) {
         newSections.splice(position, 0, newSection);
         return newSections.map((section: any, index: number) => ({ ...section, order: (index + 1) * 10 }));
+      } else {
+        newSections.push(newSection);
+        return newSections;
       }
-      newSections.push(newSection);
-      return newSections;
     });
 
-    // Update the correct path based on pageType
-    let sectionsPath = 'sections';
-    if (pageType && pageType !== 'home') {
-      sectionsPath = `pages.${pageType}.sections`;
-    }
-    updateField(sectionsPath, getSections());
+    // Don't call updateField here - it would overwrite individual field edits!
+    // The sections state is the source of truth for section structure,
+    // while editedData contains individual field edits that get merged in getSections()
   };
 
   const removeSection = (sectionId: string) => {
     setSections((prev: any) => {
       const nextSections = prev.filter((section: any) => section.id !== sectionId);
-      
-      // Update the correct path based on pageType
-      let sectionsPath = 'sections';
-      if (pageType && pageType !== 'home') {
-        sectionsPath = `pages.${pageType}.sections`;
-      }
-      
-      // Update field directly with computed nextSections to avoid stale state
-      setEditedData(prevData => set(prevData, sectionsPath, nextSections, initialData));
       return nextSections;
+    });
+    
+    // Remove any field edits for the deleted section
+    setEditedData(prevData => {
+      const newData = { ...prevData };
+      // Remove section-specific edits (e.g., sections.hero-main.*)
+      Object.keys(newData).forEach(key => {
+        if (key.startsWith(`sections.${sectionId}.`) || key === `sections.${sectionId}`) {
+          delete newData[key];
+        }
+      });
+      return newData;
     });
   };
 
@@ -805,16 +806,11 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
         order: (index + 1) * 10
       }));
       
-      // Update the correct path based on pageType
-      let sectionsPath = 'sections';
-      if (pageType && pageType !== 'home') {
-        sectionsPath = `pages.${pageType}.sections`;
-      }
-      
-      // Update field with reordered sections
-      setEditedData(prevData => set(prevData, sectionsPath, reorderedSections, initialData));
       return reorderedSections;
     });
+    
+    // Don't overwrite editedData - section moves should preserve field edits
+    // The sections state handles the structure, editedData contains field edits
   };
 
   // Array editing APIs
@@ -896,9 +892,9 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       const payloadSiteData = buildPublishPayload({
         baseSiteData: baseSiteData,
         initialData,
+        editedData,
         pageType: pageType || 'home',
         currentLocale,
-        availableLocales,
         getSections,
       });
 
@@ -1213,29 +1209,44 @@ function FloatingAddSection({
 function buildPublishPayload(opts: {
   baseSiteData: any;
   initialData: any;
+  editedData: any;
   pageType: string;
   currentLocale: string;
-  availableLocales: string[];
-  getSections: () => any[];
+  getSections?: () => any[];
 }): any {
-  const { baseSiteData, initialData, pageType, currentLocale, getSections } = opts;
+  const { baseSiteData, initialData, editedData, pageType, currentLocale, getSections } = opts;
 
-  // 1) Start from deep clone of current site data
-  let payload = deepMerge(baseSiteData, initialData);
+  // Merge edits into initial data first to avoid losing field edits when sections are added/moved
+  const mergedData = deepMerge(initialData, editedData || {});
 
-  // 2) Get live merged sections for current page
-  const liveSections = getSections();
+  // Start payload from base to preserve fields not part of the current page
+  let payload = deepMerge(baseSiteData, mergedData);
 
-  // 3) Flatten localized values to strings for publish
-  const flattened = liveSections.map((sec: any) => ({
+  // Determine sections source (prefer live state via getSections to avoid stale/invalid shapes)
+  let rawSections: any = undefined;
+  try {
+    rawSections = getSections ? getSections() : undefined;
+  } catch {}
+  if (!Array.isArray(rawSections)) {
+    rawSections = pageType === 'home'
+      ? (mergedData as any)?.sections || (mergedData as any)?.pages?.home?.sections || []
+      : (mergedData as any)?.pages?.[pageType]?.sections || [];
+  }
+  if (!Array.isArray(rawSections)) {
+    rawSections = [];
+  }
+
+  // Flatten localized values to strings for publish
+  const flattened = (rawSections as any[]).map((sec: any) => ({
     ...sec,
     data: flattenLocalizedForLocale(sec.data, currentLocale),
   }));
 
-  // 4) Overwrite only this page’s sections
-  payload = set(payload, `pages.${pageType}.sections`, flattened, payload);
+  // Overwrite only this page’s sections
+  const targetPath = pageType === 'home' ? `pages.home.sections` : `pages.${pageType}.sections`;
+  payload = set(payload, targetPath, flattened, payload);
 
-  // 5) Ensure no root-level 'sections'
+  // Ensure no root-level 'sections' remains in final payload
   if ('sections' in payload) delete (payload as any).sections;
 
   return payload;

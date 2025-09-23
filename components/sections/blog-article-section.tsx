@@ -15,7 +15,7 @@ type BlogArticle = {
 
 export function BlogArticleSection({ data, postSlug }: { data: any; postSlug: string }) {
   const { getValue } = usePreviewContext();
-  const siteSlug = (getValue('site')?.slug as string) || 'site';
+  const siteSlug = (getValue('site.slug') as string) || 'site';
   const [article, setArticle] = useState<BlogArticle | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

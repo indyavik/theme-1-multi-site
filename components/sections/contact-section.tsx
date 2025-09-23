@@ -9,6 +9,7 @@ import { Phone, Mail, MapPin, ArrowRight } from "lucide-react"
 import { EditableText } from "@/components/ui/editable-text"
 import { useState } from "react"
 import { submitContactUs } from "@/lib/contact"
+import { usePreviewContext } from "@/lib/preview-context"
 
 interface ContactSectionProps {
   data: {
@@ -30,6 +31,8 @@ interface ContactSectionProps {
 }
 
 export function ContactSection({ data }: ContactSectionProps) {
+  const { getValue } = usePreviewContext()
+  const siteSlug = (getValue('site.slug') as string) || undefined
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -46,7 +49,7 @@ export function ContactSection({ data }: ContactSectionProps) {
       if (typeof value === 'string') fields[key] = value
     }
     try {
-      const res = await submitContactUs({ fields, pagePath: typeof window !== 'undefined' ? window.location.pathname : undefined })
+      const res = await submitContactUs({ siteSlug, fields, pagePath: typeof window !== 'undefined' ? window.location.pathname : undefined })
       if (!res.ok) throw new Error(res.message || 'Submission failed')
       setSuccess('Thanks! We will get back to you soon.')
       form.reset()

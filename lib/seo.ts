@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import { getApiUrl, SITE_SLUG } from '@/lib/theme-config'
-import { siteData as staticSiteData } from '@/lib/site-config'
+import { getApiUrl } from '@/lib/theme-config'
 
 export type SeoResponse = {
   title: string
@@ -18,7 +17,7 @@ type FetchSeoOptions = {
 // Always no-store to reflect latest values in production without rebuilds.
 export async function fetchSeoData(page: string, opts: FetchSeoOptions = {}): Promise<SeoResponse | null> {
   try {
-    const slug = opts.siteSlug || SITE_SLUG || (staticSiteData as any)?.site?.slug
+    const slug = opts.siteSlug
     if (!slug) return null
     const params = new URLSearchParams({ siteSlug: slug, page })
     if (opts.contextSlug) params.set('contextSlug', opts.contextSlug)

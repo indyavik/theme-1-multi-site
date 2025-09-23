@@ -16,7 +16,6 @@
  *   that contains PreviewProvider + SectionsRenderer and section mapping.
  */
 import { siteSchema } from "@/lib/site-schema"
-import { SITE_SLUG } from "@/lib/theme-config"
 import { PreviewProvider, PreviewToolbar, SectionsRenderer } from "@/lib/preview-context"
 import { HeroSection } from "@/components/sections/hero-section"
 import { AboutSection } from "@/components/sections/about-section"
@@ -47,7 +46,7 @@ export default function HomeContent({ initialData }: { initialData: any }) {
     <PreviewProvider 
       initialData={initialData} 
       schema={siteSchema} 
-      siteSlug={SITE_SLUG}
+      siteSlug={initialData?.site?.slug}
       pageType="home"
       currentLocale="en"
     >

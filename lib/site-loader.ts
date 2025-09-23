@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { unstable_noStore as noStore } from 'next/cache';
 import { DEFAULT_SITE, SiteId, isValidSiteId } from './site-registry';
 import { siteSchema } from './site-schema';
 
@@ -15,6 +16,10 @@ export function resolveSiteIdFromParam(param?: string | null): SiteId {
 }
 
 export async function loadSiteData(siteId: SiteId): Promise<any> {
+  // Ensure Next.js does not cache this read — always fetch freshest on each request
+  // This complements page-level noStore() and defends against accidental caching.
+  try { noStore(); } catch {}
+
   // Source of truth: per-site data under /sites/<siteId>/lib/site-data.json
   const siteDataPath = path.join(process.cwd(), 'sites', siteId, 'lib', 'site-data.json');
   try {

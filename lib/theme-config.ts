@@ -7,7 +7,8 @@ export function getApiUrl(path: string): string {
 }
 
 // Optional identifiers for publish payload (if present, they will be sent)
-export const SITE_SLUG: string = process.env.NEXT_PUBLIC_SITE_SLUG || 'mysite-e2e-12';
+// Deprecated: per-site slug is now sourced from site-data.json
+export const SITE_SLUG: string = process.env.NEXT_PUBLIC_SITE_SLUG || '';
 export const SITE_ID: string | undefined = process.env.NEXT_PUBLIC_SITE_ID || undefined;
 // Optional: bearer token from env (left as-is for now)
 export function getAuthHeader(): Record<string, string> | undefined {
