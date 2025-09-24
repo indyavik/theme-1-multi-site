@@ -10,7 +10,7 @@
     "site": {
         "brand": "TestCo",
         "city": "Seattle, WA",
-        "slug": "summit-books-tax-seattle",
+        "slug": "site3",
         "locale": "en",
         "tone": "professional"
     },
@@ -295,7 +295,7 @@
         "blog-index": {
             "sections": [
                 {
-                    "id": "blog-list",
+                    "id": "blogList",
                     "type": "blogList",
                     "enabled": true,
                     "region": "main",
@@ -314,7 +314,7 @@
         "blog-post": {
             "sections": [
                 {
-                    "id": "blog-article",
+                    "id": "blogArticle",
                     "type": "blogArticle",
                     "enabled": true,
                     "region": "main",

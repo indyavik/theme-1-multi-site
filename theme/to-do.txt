@@ -1,0 +1,75 @@
+I scanned the theme for config-like hardcoded values used across components. Here are potential places to make configurable (no changes made):
+API endpoints and backend routes
+theme/core/editable-image.tsx: getApiUrl('/api/sites/publish-image')
+theme/core/preview-context.tsx: getApiUrl('/api/sites/publish')
+theme/components/sections/blog-list-section.tsx: getApiUrl('/api/sites/${siteSlug}/blogs?status=published&page=1&pageSize=${pageSize}')
+theme/components/sections/blog-article-section.tsx: getApiUrl('/api/sites/${siteSlug}/blogs/${postSlug}')
+theme/lib/seo.ts: getApiUrl('/api/sites/seo-data?...')
+theme/lib/theme-config.ts: API_BASE = 'http://localhost:8000', theme_version = '1.0.0' (core config)
+Locale and i18n
+currentLocale usage is hardcoded to "en":
+theme/components/pages/HomeContent.tsx (PreviewProvider)
+theme/components/pages/BlogIndexContent.tsx
+theme/components/pages/BlogPostContent.tsx
+theme/components/pages/AboutUsContent.tsx
+app/services/[slug]/page.tsx
+Consider reading from site-data or a global locales config.
+Page types and route patterns
+Page type literals used in PreviewProvider: "home", "about-us", "blog-index", "blog-post", "service-detail" (various page components)
+theme/core/preview-context.tsx (sidebar tree): route building hardcoded:
+home → "/"
+about-us → "/about-us"
+service-detail → /services/${slug}
+Consider a centralized route map or enum for page types.
+Features/flags
+features.blogEnabled checked in:
+theme/components/pages/HomeContent.tsx (to filter out blogTeaser)
+Also defined in schema: theme/site-schema.ts
+Good candidate for standardizing flag usage if more are added.
+SEO config and page titles
+app/page.tsx: buildMetadataFromSeo(seo, 'Summit Books & Tax') hardcoded fallback title
+Only the home page fetches SEO. Other pages don’t implement generateMetadata (About, Blog index, Blog post, Services). If needed, add consistent SEO handling per page using site slug.
+Site assets path rules
+theme/core/editable-image.tsx:
+Rule: if path starts with "/", try /sites/${siteSlug}${path} then fallback to ${path}
+Base directory "/sites/" segment is hardcoded; could live in config if structure changes.
+Blog-specific config
+theme/components/sections/blog-list-section.tsx:
+Default pageSize = 10
+URL enforces page=1 (no pagination control)
+Link pattern hardcoded: /blog/${post.slug}
+Default text: "Latest Articles & Insights"
+theme/components/sections/blog-article-section.tsx:
+Link/URL pattern /api/sites/${siteSlug}/blogs/${postSlug}
+UI text and thresholds
+theme/core/editable-image.tsx:
+Max upload size 5MB
+Small-image threshold <= 96 for toolbar behavior
+Button labels: "Upload Image", "Publish Image", "Cancel", error texts
+theme/core/preview-context.tsx (toolbar and publishing):
+Button labels and alert texts are inline strings
+Consider consolidating into a messages/i18n module
+Fonts and layout
+app/layout.tsx:
+Fonts: Space_Grotesk, DM_Sans with specific weights
+Body classes include font-sans antialiased
+If theming needs to swap fonts per site, consider config or CSS variables.
+Section mapping (component registry per page)
+Home: theme/components/pages/HomeContent.tsx → sectionComponents maps section type to component
+Blog index: BlogIndexContent.tsx → blogList
+Blog post: BlogPostContent.tsx → blogArticle
+About us: AboutUsContent.tsx → aboutUsHero
+If section registration needs to be dynamic, consider centralizing component maps per page.
+Inconsistent editing paths to review
+theme/components/sections/blog-list-section.tsx:
+Uses EditableText with path sections.blog-list.title and sections.blog-list.intro
+This is hyphen-case and likely should be sections.blogList.* to match schema and other camelCase usage. Worth auditing.
+Site registry and defaults
+theme/lib/site-registry.ts:
+SITES = ['site1','site2'] and DEFAULT_SITE = 'site1'
+These are intentionally config, but note they require updates when adding sites.
+Error handling messages and constraints
+theme/lib/site-loader.ts: strict shape checks and error strings
+theme/core/preview-context.tsx: publish payload errors and logging
+Consider standardizing error messages or exposing them for i18n.
+If you want, I can turn any subset of these into a small config module (e.g., route map, API endpoints, defaults, i18n strings), but per your request, I haven’t changed anything yet.

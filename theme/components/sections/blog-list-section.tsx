@@ -46,13 +46,13 @@ export function BlogListSection({ data }: { data: any }) {
     <section className="py-12">
       <div className="max-w-5xl mx-auto px-4">
         <EditableText
-          path={`sections.blog-list.title`}
+          path={`sections.blogList.title`}
           value={data?.title || 'Latest Articles & Insights'}
           className="text-3xl font-bold mb-2"
         />
         <div className="text-muted-foreground mb-6">
           <EditableText
-            path={`sections.blog-list.intro`}
+            path={`sections.blogList.intro`}
             value={data?.intro || ''}
             className="prose max-w-none"
             multiline

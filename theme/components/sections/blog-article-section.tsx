@@ -43,7 +43,7 @@ export function BlogArticleSection({ data, postSlug }: { data: any; postSlug: st
       <div className="max-w-5xl mx-auto px-4">
         {data?.heroTitleOverride && (
           <EditableText
-            path={`sections.blog-article.heroTitleOverride`}
+            path={`sections.blogArticle.heroTitleOverride`}
             value={data.heroTitleOverride}
             className="text-3xl font-bold mb-4"
           />
