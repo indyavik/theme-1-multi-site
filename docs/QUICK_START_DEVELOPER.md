@@ -48,10 +48,10 @@ sectionTypes: {
 }
 ```
 
-### **Step 2: Allow on Pages** (same file)
+### **Step 2: Allow this section on Pages** (same file)
 ```typescript
-pages: {
-  home: {
+pages: { 
+  home: { // --> adding this section to the home page 
     allowedSectionTypes: [
       "hero", "about", "services", 
       "myAwesomeSection"  // ← Add here
@@ -259,6 +259,31 @@ export function MyListSection({ data }: { data: { title: string, items: Array<{n
 ### **"[object Object]" Showing?**
 - [ ] Component expects objects but data has strings
 - [ ] Update data to match schema structure
+
+### **Page Not Found (404) Logic**
+When creating new pages, implement proper 404 validation:
+
+```typescript
+export default async function YourPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
+  noStore();
+  const siteParam = typeof searchParams?.site === 'string' ? searchParams.site : Array.isArray(searchParams?.site) ? searchParams.site[0] : undefined;
+  const siteId = resolveSiteIdFromParam(siteParam);
+  const { data } = await getSiteContext(siteId);
+  
+  // Strict validation in public mode, lenient in preview mode
+  const isPreviewMode = searchParams?.preview === 'true';
+  if (!isPreviewMode && !data.pages?.['your-page-type']) {
+    notFound(); // Returns 404
+  }
+  
+  // Rest of your page logic...
+}
+```
+
+**Why this approach?**
+- **Public users** get proper 404s when pages don't exist
+- **Editors** can access pages in preview mode even if they don't exist yet
+- **Consistent behavior** across all pages
 
 ## 🎯 **That's It!**
 

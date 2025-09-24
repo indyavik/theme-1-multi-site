@@ -203,6 +203,76 @@ export default function AboutUsPage() {
 }
 ```
 
+## 🚨 **Important: Page Validation & 404 Handling**
+
+When creating new pages, you **must** implement proper 404 validation:
+
+### **Multi-Site Page Validation**
+
+```typescript
+// app/your-new-page/page.tsx
+import type { Metadata } from "next"
+import { unstable_noStore as noStore } from "next/cache";
+import { notFound } from "next/navigation";
+import { fetchSeoData, buildMetadataFromSeo, getJsonLdScript } from "@/theme/lib/seo"
+import YourPageContent from "@/theme/components/pages/YourPageContent";
+import { getSiteContext, resolveSiteIdFromParam } from "@/theme/lib/site-loader";
+
+export default async function YourPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
+  noStore();
+  const siteParam = typeof searchParams?.site === 'string' ? searchParams.site : Array.isArray(searchParams?.site) ? searchParams.site[0] : undefined;
+  const siteId = resolveSiteIdFromParam(siteParam);
+  const { data } = await getSiteContext(siteId);
+  
+  // 🔥 CRITICAL: Validate page exists in site data
+  // Strict in public mode, lenient in preview mode
+  const isPreviewMode = searchParams?.preview === 'true';
+  if (!isPreviewMode && !data.pages?.['your-page-type']) {
+    notFound(); // Returns proper 404
+  }
+  
+  const seo = await fetchSeoData('your-page-type', { siteSlug: (data as any)?.site?.slug })
+  const jsonLd = getJsonLdScript(seo)
+  
+  return (
+    <>
+      {jsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+      )}
+      <YourPageContent initialData={data} />
+    </>
+  );
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }): Promise<Metadata> {
+  noStore()
+  const siteParam = typeof searchParams?.site === 'string' ? searchParams.site : Array.isArray(searchParams?.site) ? searchParams.site[0] : undefined
+  const siteId = resolveSiteIdFromParam(siteParam)
+  const { data } = await getSiteContext(siteId)
+  const brand = (data as any)?.site?.brand || 'Website'
+  const seo = await fetchSeoData('your-page-type', { siteSlug: (data as any)?.site?.slug })
+  return buildMetadataFromSeo(seo, brand)
+}
+```
+
+### **Why This Validation Matters**
+
+**Without validation:**
+- `/your-page?site=site1` → Works (has page)
+- `/your-page?site=site2` → Shows empty content (no page, confusing UX)
+
+**With validation:**
+- `/your-page?site=site1` → Works (has page)  
+- `/your-page?site=site2` → Proper 404 (no page)
+- `/your-page?site=site2&preview=true` → Allows editing (preview mode)
+
+### **Preview Mode vs Public Mode**
+
+- **Public Mode**: Strict validation - users get 404s for missing pages
+- **Preview Mode**: Lenient validation - editors can access pages even if they don't exist yet
+
+This ensures proper user experience while allowing flexible content management.
+
 ## 🎯 Key Concepts
 
 ### Section Schema Properties
