@@ -1,3 +1,26 @@
+/**
+ * EDITABLE TEXT - In-Place Text Editing Component
+ * 
+ * Provides click-to-edit functionality for text content in preview mode.
+ * Automatically switches between display and edit modes based on preview context.
+ * 
+ * Features:
+ * - Click to edit in preview mode, static display in public mode
+ * - Real-time validation based on field schema (maxLength, etc.)
+ * - Support for multiline text with textarea
+ * - Automatic saving on blur/enter
+ * - Rich text support with dangerouslySetInnerHTML
+ * 
+ * Usage: Replace any <p>, <h1>, <span> etc. with <EditableText>
+ * 
+ * Example:
+ * <EditableText 
+ *   path="sections.hero.title" 
+ *   value="Welcome to our site" 
+ *   className="text-2xl font-bold" 
+ * />
+ */
+
 'use client';
 
 import React, { useEffect, useState } from 'react';

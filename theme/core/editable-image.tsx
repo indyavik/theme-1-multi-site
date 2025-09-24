@@ -1,3 +1,34 @@
+/**
+ * EDITABLE IMAGE - In-Place Image Upload & Management Component
+ * 
+ * Provides click-to-upload functionality for images in preview mode.
+ * Handles multi-site image resolution with fallback logic.
+ * 
+ * Features:
+ * - Click to upload in preview mode, static display in public mode
+ * - Multi-site image paths: /sites/{siteSlug}/image.png with fallback to /image.png
+ * - Image upload with drag & drop support
+ * - Automatic fallback when site-specific images don't exist
+ * - Preview before publishing changes
+ * - File validation (type, size limits)
+ * 
+ * Image Resolution Logic:
+ * 1. If src starts with http(s):// → use as-is (external URLs)
+ * 2. If src starts with / → try /sites/{siteSlug}{src} first
+ * 3. If site-specific fails → fallback to original src (shared public assets)
+ * 
+ * Usage: Replace any <img> with <EditableImage>
+ * 
+ * Example:
+ * <EditableImage 
+ *   path="sections.hero.heroImage" 
+ *   src="/placeholder.jpg" 
+ *   alt="Hero image" 
+ *   width={800} 
+ *   height={400} 
+ * />
+ */
+
 "use client"
 
 import { useState, useRef, useMemo, useEffect } from "react"

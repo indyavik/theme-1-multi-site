@@ -1,3 +1,23 @@
+/**
+ * PREVIEW CONTEXT - Core Editing System
+ * 
+ * This is the central state management system for the theme's live editing capabilities.
+ * It provides:
+ * - Preview mode toggle (currently hardcoded to true - see PREVIEW_MODE_ENHANCEMENTS.md)
+ * - Live field editing with real-time updates
+ * - Section management (add/remove/reorder)
+ * - Data persistence to backend via publish API
+ * - Multi-site support with site-specific data loading
+ * 
+ * Key Components:
+ * - PreviewProvider: Main context provider that wraps editable content
+ * - PreviewToolbar: UI controls for preview mode and publishing
+ * - SectionsRenderer: Renders sections with editing capabilities
+ * - EditableSection: Individual section wrapper with add/remove controls
+ * 
+ * Usage: Wrap any page content with <PreviewProvider> to enable editing
+ */
+
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
@@ -448,7 +468,7 @@ function deepMerge(target: any, source: any): any {
 }
 
 export function PreviewProvider({ children, initialData, schema, siteSlug, pageType, currentLocale: propLocale, contextSlug }: PreviewProviderProps) {
-  const [isPreviewMode, setIsPreviewMode] = useState(true);
+  const [isPreviewMode, setIsPreviewMode] = useState(true); // --> change in production. 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editedData, setEditedData] = useState<Record<string, any>>({});
   

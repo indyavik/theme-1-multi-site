@@ -1,3 +1,27 @@
+/**
+ * EDITABLE SECTION - Section Wrapper with Add/Remove Controls
+ * 
+ * Wraps individual sections to provide editing controls in preview mode.
+ * Enables section management (add, remove, reorder) for the live editing system.
+ * 
+ * Features:
+ * - Add new sections via section picker modal
+ * - Remove existing sections with confirmation
+ * - Drag & drop reordering (via SectionsRenderer)
+ * - Section type validation based on page schema
+ * - Visual editing indicators in preview mode
+ * 
+ * Usage: Wrap any section component with <EditableSection>
+ * 
+ * Example:
+ * <EditableSection sectionId="hero-main" sectionType="hero">
+ *   <HeroSection data={sectionData} />
+ * </EditableSection>
+ * 
+ * Note: This component automatically handles preview mode detection
+ * and only shows controls when editing is enabled.
+ */
+
 'use client';
 
 import React, { useState } from 'react';

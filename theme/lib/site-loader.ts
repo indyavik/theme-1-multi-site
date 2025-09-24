@@ -1,3 +1,27 @@
+/**
+ * SITE LOADER - Multi-Site Data Loading System
+ * 
+ * Central system for loading site-specific data in the multi-site architecture.
+ * Handles site resolution, data loading, and context creation.
+ * 
+ * Key Functions:
+ * - resolveSiteIdFromParam(): Gets site ID from URL parameter (?site=site1)
+ * - loadSiteData(): Loads site-data.json from sites/{siteId}/lib/
+ * - getSiteContext(): Creates complete site context with data + schema
+ * 
+ * Multi-Site Architecture:
+ * - Each site has its own data: sites/{siteId}/lib/site-data.json
+ * - Shared schema: theme/site-schema.ts (validates all sites)
+ * - URL-based site selection: ?site=site1, ?site=site2, etc.
+ * - Fresh data reads: Uses noStore() to ensure latest data from disk
+ * 
+ * Usage:
+ * const { siteId, data, schema } = await getSiteContext('site1')
+ * 
+ * Note: This replaces the old single-site approach and enables
+ * multiple distinct websites from the same codebase.
+ */
+
 import fs from 'fs/promises';
 import path from 'path';
 import { unstable_noStore as noStore } from 'next/cache';

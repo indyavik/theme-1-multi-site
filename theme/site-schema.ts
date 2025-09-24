@@ -1,4 +1,30 @@
-// Site schema definitions - TypeScript types and validation rules
+/**
+ * SITE SCHEMA - Central Configuration & Validation System
+ * 
+ * Defines the structure, validation rules, and defaults for all site data.
+ * This is the single source of truth for what fields exist and how they behave.
+ * 
+ * Key Sections:
+ * - _meta: Schema versioning and metadata
+ * - site: Global site information (brand, slug, locale, etc.)
+ * - features: Feature flags (blogEnabled, etc.)
+ * - sectionTypes: Available section types with their schemas
+ * - pages: Page type definitions and allowed sections
+ * 
+ * Schema Features:
+ * - Field validation (type, maxLength, required, etc.)
+ * - Editing controls (editable, description, options)
+ * - Localization support (localized: true)
+ * - Default values for new sections
+ * - Display names for UI components
+ * 
+ * Usage: Import and use for validation, type checking, and UI generation
+ * 
+ * Example:
+ * const heroSchema = siteSchema.sectionTypes.hero.schema
+ * const isEditable = siteSchema.sectionTypes.hero.schema.title.editable
+ */
+
 export const siteSchema = {
   _meta: {
     schemaVersion: 1
