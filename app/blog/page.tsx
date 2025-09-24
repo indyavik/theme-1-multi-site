@@ -10,8 +10,9 @@ export default async function BlogPage({ searchParams }: { searchParams?: Record
   const siteParam = typeof searchParams?.site === 'string' ? searchParams.site : Array.isArray(searchParams?.site) ? searchParams.site[0] : undefined;
   const siteId = resolveSiteIdFromParam(siteParam);
   const { data } = await getSiteContext(siteId);
-  // Check if the blog-index page exists in site data
-  if (!data.pages?.['blog-index']) {
+  // Check if the blog-index page exists in site data (strict in public mode, lenient in preview mode)
+  const isPreviewMode = searchParams?.preview === 'true';
+  if (!isPreviewMode && !data.pages?.['blog-index']) {
     notFound();
   }
   const seo = await fetchSeoData('blog-index', { siteSlug: (data as any)?.site?.slug })

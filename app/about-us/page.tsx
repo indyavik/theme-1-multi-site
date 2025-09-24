@@ -10,8 +10,9 @@ export default async function AboutUsPage({ searchParams }: { searchParams?: Rec
   const siteParam = typeof searchParams?.site === 'string' ? searchParams.site : Array.isArray(searchParams?.site) ? searchParams.site[0] : undefined;
   const siteId = resolveSiteIdFromParam(siteParam);
   const { data } = await getSiteContext(siteId);
-  // Check if the about-us page exists in site data
-  if (!data.pages?.['about-us']) {
+  // Check if the about-us page exists in site data (strict in public mode, lenient in preview mode)
+  const isPreviewMode = searchParams?.preview === 'true';
+  if (!isPreviewMode && !data.pages?.['about-us']) {
     notFound();
   }
   const seo = await fetchSeoData('about-us', { siteSlug: (data as any)?.site?.slug })
