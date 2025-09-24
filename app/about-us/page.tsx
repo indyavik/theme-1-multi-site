@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { unstable_noStore as noStore } from "next/cache";
+import { notFound } from "next/navigation";
 import { fetchSeoData, buildMetadataFromSeo, getJsonLdScript } from "@/theme/lib/seo"
 import AboutUsContent from "@/theme/components/pages/AboutUsContent";
 import { getSiteContext, resolveSiteIdFromParam } from "@/theme/lib/site-loader";
@@ -9,6 +10,10 @@ export default async function AboutUsPage({ searchParams }: { searchParams?: Rec
   const siteParam = typeof searchParams?.site === 'string' ? searchParams.site : Array.isArray(searchParams?.site) ? searchParams.site[0] : undefined;
   const siteId = resolveSiteIdFromParam(siteParam);
   const { data } = await getSiteContext(siteId);
+  // Check if the about-us page exists in site data
+  if (!data.pages?.['about-us']) {
+    notFound();
+  }
   const seo = await fetchSeoData('about-us', { siteSlug: (data as any)?.site?.slug })
   const jsonLd = getJsonLdScript(seo)
   return (

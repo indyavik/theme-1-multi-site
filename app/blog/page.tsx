@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { unstable_noStore as noStore } from "next/cache";
+import { notFound } from "next/navigation";
 import { fetchSeoData, buildMetadataFromSeo, getJsonLdScript } from "@/theme/lib/seo"
 import BlogIndexContent from "@/theme/components/pages/BlogIndexContent";
 import { getSiteContext, resolveSiteIdFromParam } from "@/theme/lib/site-loader";
@@ -9,6 +10,10 @@ export default async function BlogPage({ searchParams }: { searchParams?: Record
   const siteParam = typeof searchParams?.site === 'string' ? searchParams.site : Array.isArray(searchParams?.site) ? searchParams.site[0] : undefined;
   const siteId = resolveSiteIdFromParam(siteParam);
   const { data } = await getSiteContext(siteId);
+  // Check if the blog-index page exists in site data
+  if (!data.pages?.['blog-index']) {
+    notFound();
+  }
   const seo = await fetchSeoData('blog-index', { siteSlug: (data as any)?.site?.slug })
   const jsonLd = getJsonLdScript(seo)
   return (
