@@ -1,8 +1,8 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { PreviewProvider, PreviewToolbar } from "@/lib/preview-context";
-import { siteSchema } from "@/lib/site-schema";
-import { getSiteContext, resolveSiteIdFromParam } from "@/lib/site-loader";
-import ServiceDetail from "@/components/pages/services/ServiceDetail";
+import { PreviewProvider, PreviewToolbar } from "@/theme/core/preview-context";
+import { siteSchema } from "@/theme/site-schema";
+import { getSiteContext, resolveSiteIdFromParam } from "@/theme/lib/site-loader";
+import ServiceDetail from "@/theme/components/pages/services/ServiceDetail";
 
 export default async function ServiceDetailPage({ params, searchParams }: { params: { slug: string }, searchParams?: Record<string, string | string[] | undefined> }) {
   noStore();

@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
-import AboutUsContent from "@/components/pages/AboutUsContent";
-import { getSiteContext, resolveSiteIdFromParam } from "@/lib/site-loader";
+import AboutUsContent from "@/theme/components/pages/AboutUsContent";
+import { getSiteContext, resolveSiteIdFromParam } from "@/theme/lib/site-loader";
 
 export default async function AboutUsPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
   noStore();

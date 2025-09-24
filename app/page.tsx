@@ -14,9 +14,9 @@
  */
 import type { Metadata } from "next"
 import { unstable_noStore as noStore } from "next/cache"
-import { fetchSeoData, buildMetadataFromSeo, getJsonLdScript } from "@/lib/seo"
-import HomeContent from "@/components/pages/HomeContent"
-import { getSiteContext, resolveSiteIdFromParam } from "@/lib/site-loader"
+import { fetchSeoData, buildMetadataFromSeo, getJsonLdScript } from "@/theme/lib/seo"
+import HomeContent from "@/theme/components/pages/HomeContent"
+import { getSiteContext, resolveSiteIdFromParam } from "@/theme/lib/site-loader"
 
 
 // Client content lives in HomeContent to avoid passing function props from server to client

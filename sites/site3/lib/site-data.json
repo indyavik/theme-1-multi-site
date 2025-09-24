@@ -27,8 +27,8 @@
                     "region": "main",
                     "order": 10,
                     "data": {
-                        "shortHeadline": "Stress-Free Bookkeeping - site 3",
-                        "subHeadline": "Remote, accurate, and affordable—so you can focus on growth",
+                        "shortHeadline": "Stress-Free Bookkeeping -3",
+                        "subHeadline": "Remote, accurate, and affordable—so you can focus on growth on site number 3",
                         "primaryCta": {
                             "label": "Book a Free Consultation",
                             "href": "#contact"
@@ -47,7 +47,7 @@
                     "region": "main",
                     "order": 20,
                     "data": {
-                        "title": "About TestCo -site3",
+                        "title": "About TestCo",
                         "story": "We provide test services.",
                         "credentials": [
                             {
@@ -66,11 +66,51 @@
                     }
                 },
                 {
+                    "id": "contact",
+                    "type": "contact",
+                    "enabled": true,
+                    "region": "main",
+                    "order": 30,
+                    "data": {
+                        "title": "Get In Touch",
+                        "phone": "123-456-7890",
+                        "email": "test@example.com",
+                        "address": "123 Test St",
+                        "primaryCta": {
+                            "label": "Contact Us",
+                            "href": "#contact"
+                        },
+                        "form": {
+                            "enabled": true,
+                            "fields": [
+                                {
+                                    "name": "name",
+                                    "label": "Name",
+                                    "type": "text",
+                                    "required": true
+                                },
+                                {
+                                    "name": "email",
+                                    "label": "Email",
+                                    "type": "email",
+                                    "required": true
+                                },
+                                {
+                                    "name": "message",
+                                    "label": "How can we help?",
+                                    "type": "textarea",
+                                    "required": true
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
                     "id": "whyChooseUs",
                     "type": "whyChooseUs",
                     "enabled": true,
                     "region": "main",
-                    "order": 70,
+                    "order": 40,
                     "data": {
                         "title": "Why Choose TestCo",
                         "bullets": [
@@ -88,6 +128,24 @@
                             },
                             {
                                 "name": "Dedicated account manager"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "industriesServed",
+                    "type": "industriesServed",
+                    "enabled": true,
+                    "region": "main",
+                    "order": 50,
+                    "data": {
+                        "title": "Industries We Serve",
+                        "items": [
+                            {
+                                "name": "Industry site number 3"
+                            },
+                            {
+                                "name": "Industry2 site number 3"
                             }
                         ]
                     }

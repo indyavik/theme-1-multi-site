@@ -1,6 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
-import BlogPostContent from "@/components/pages/BlogPostContent";
-import { getSiteContext, resolveSiteIdFromParam } from "@/lib/site-loader";
+import BlogPostContent from "@/theme/components/pages/BlogPostContent";
+import { getSiteContext, resolveSiteIdFromParam } from "@/theme/lib/site-loader";
 
 export default async function BlogDetailPage({ params, searchParams }: { params: { slug: string }, searchParams?: Record<string, string | string[] | undefined> }) {
   noStore();
