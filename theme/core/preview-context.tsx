@@ -16,6 +16,11 @@
  * - EditableSection: Individual section wrapper with add/remove controls
  * 
  * Usage: Wrap any page content with <PreviewProvider> to enable editing
+ * 
+ * TODO: UPDATE PREVIEW MODE LOGIC (Line 475)
+ * Currently hardcoded to useState(true) - needs authentication-based logic
+ * Should default to false and only enable with ?preview=true + authentication
+ * See docs/PREVIEW_MODE_ENHANCEMENTS.md for implementation details
  */
 
 'use client';
@@ -468,7 +473,11 @@ function deepMerge(target: any, source: any): any {
 }
 
 export function PreviewProvider({ children, initialData, schema, siteSlug, pageType, currentLocale: propLocale, contextSlug }: PreviewProviderProps) {
-  const [isPreviewMode, setIsPreviewMode] = useState(true); // --> change in production. 
+  // TODO: UPDATE PREVIEW MODE LOGIC
+  // Currently hardcoded to true - needs authentication-based logic
+  // See docs/PREVIEW_MODE_ENHANCEMENTS.md for implementation details
+  // Should default to false and only enable with ?preview=true + authentication
+  const [isPreviewMode, setIsPreviewMode] = useState(true); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editedData, setEditedData] = useState<Record<string, any>>({});
   
