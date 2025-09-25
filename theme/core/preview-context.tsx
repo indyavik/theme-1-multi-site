@@ -480,6 +480,8 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
   const [isPreviewMode, setIsPreviewMode] = useState(false); // 🔥 Changed to false - controlled by toolbar
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editedData, setEditedData] = useState<Record<string, any>>({});
+  // Tracks structural changes like add/remove/move section so Publish appears even with no field edits
+  const [hasStructuralChanges, setHasStructuralChanges] = useState(false);
   
   // Determine context property name based on page type
   const getContextProperty = () => {
@@ -792,6 +794,8 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
         return newSections;
       }
     });
+    // Mark structural change
+    setHasStructuralChanges(true);
 
     // Don't call updateField here - it would overwrite individual field edits!
     // The sections state is the source of truth for section structure,
@@ -815,6 +819,8 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       });
       return newData;
     });
+    // Mark structural change
+    setHasStructuralChanges(true);
   };
 
   const moveSection = (sectionId: string, newPosition: number) => {
@@ -835,6 +841,8 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       
       return reorderedSections;
     });
+    // Mark structural change
+    setHasStructuralChanges(true);
     
     // Don't overwrite editedData - section moves should preserve field edits
     // The sections state handles the structure, editedData contains field edits
@@ -977,6 +985,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
 
       // On success: reset edits and autosave
       setEditedData({});
+      setHasStructuralChanges(false);
       if (typeof window !== 'undefined') {
         localStorage.removeItem(`preview-${siteSlug || 'default'}`);
       }
@@ -997,13 +1006,17 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
 
   const discardChanges = () => {
     setEditedData({});
-    setSections(initialData.sections || []);
+    // Restore sections from initial page data to avoid empty page after discard
+    setSections(getInitialSections());
+    setHasStructuralChanges(false);
     if (typeof window !== 'undefined') {
       localStorage.removeItem(`preview-${siteSlug || 'default'}`);
+      // Ensure we display the most recent site data from the server (noStore paths)
+      try { window.location.reload(); } catch {}
     }
   };
 
-  const hasChanges = Object.keys(editedData).length > 0;
+  const hasChanges = hasStructuralChanges || Object.keys(editedData).length > 0;
 
   // Enhanced isFieldEditable using new sectionTypes structure
   const isFieldEditable = (path: string): boolean => {
@@ -1422,6 +1435,7 @@ export function PreviewToolbar() {
     publishChanges,
     discardChanges,
     editedData,
+    hasChanges,
     sidebarOpen,
     setSidebarOpen,
     getValue,
@@ -1501,9 +1515,13 @@ export function PreviewToolbar() {
               <span>{isPreviewMode ? 'Editing ON' : 'Editing OFF'}</span>
             </label>
 
-            {changesCount > 0 && (
+            {hasChanges && (
               <div className="hidden sm:flex items-center gap-2 ml-3">
-                <span className="text-[11px] text-blue-200">{changesCount} edit{changesCount !== 1 ? 's' : ''}</span>
+                {changesCount > 0 ? (
+                  <span className="text-[11px] text-blue-200">{changesCount} edit{changesCount !== 1 ? 's' : ''}</span>
+                ) : (
+                  <span className="text-[11px] text-blue-200">Structural changes</span>
+                )}
                 <button
                   onClick={publishChanges}
                   className="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white text-[11px] rounded"
