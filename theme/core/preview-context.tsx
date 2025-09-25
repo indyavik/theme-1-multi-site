@@ -25,7 +25,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { getApiUrl, SITE_SLUG, SITE_ID, getAuthHeader } from '@/theme/lib/theme-config';
 import { LocalizedValue, FieldSchema, ExtendedFieldType, siteSchema } from '../site-schema';
@@ -477,7 +477,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
   // Currently hardcoded to true - needs authentication-based logic
   // See docs/PREVIEW_MODE_ENHANCEMENTS.md for implementation details
   // Should default to false and only enable with ?preview=true + authentication
-  const [isPreviewMode, setIsPreviewMode] = useState(true); 
+  const [isPreviewMode, setIsPreviewMode] = useState(false); // 🔥 Changed to false - controlled by toolbar
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editedData, setEditedData] = useState<Record<string, any>>({});
   
@@ -912,6 +912,14 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
 
   const publishChanges = async () => {
     try {
+      // 🔥 NEW: Notify toolbar that publishing started
+      if (typeof window !== 'undefined') {
+        window.parent.postMessage({
+          type: 'PUBLISH_START',
+          data: {}
+        }, '*');
+      }
+
       // Build publish-ready siteData:
       // - Clone base site data
       // - Overwrite only the current page's sections with merged live sections
@@ -938,7 +946,13 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       else if (siteSlug) payload.siteSlug = siteSlug;
       if (SITE_ID) payload.siteId = SITE_ID;
 
-      console.log('payload', payload);
+      console.log('📝 Publish payload:', {
+        siteSlug: payload.siteSlug,
+        hasSiteData: !!payload.siteData,
+        sectionsCount: payload.siteData?.pages?.home?.sections?.length || 0,
+        editedDataKeys: Object.keys(editedData),
+        apiUrl: getApiUrl('/api/sites/publish')
+      });
 
       const res = await fetch(getApiUrl('/api/sites/publish'), {
         method: 'POST',
@@ -953,6 +967,14 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
         throw new Error(text || `Publish failed: ${res.status}`);
       }
 
+      // 🔥 NEW: Notify toolbar of success
+      if (typeof window !== 'undefined') {
+        window.parent.postMessage({
+          type: 'PUBLISH_SUCCESS',
+          data: {}
+        }, '*');
+      }
+
       // On success: reset edits and autosave
       setEditedData({});
       if (typeof window !== 'undefined') {
@@ -960,6 +982,16 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       }
     } catch (error) {
       console.error('Error publishing changes:', error);
+      
+      // 🔥 NEW: Notify toolbar of error
+      if (typeof window !== 'undefined') {
+        window.parent.postMessage({
+          type: 'PUBLISH_ERROR',
+          data: { 
+            error: error instanceof Error ? error.message : String(error)
+          }
+        }, '*');
+      }
     }
   };
 
@@ -978,6 +1010,91 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
     const fieldSchema = getFieldSchema(path);
     return fieldSchema?.editable === true;
   };
+
+  // 🔥 NEW: Listen for commands from toolbar app
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // In production, verify origin for security
+      // if (event.origin !== 'http://localhost:3001') return;
+      
+      const { type, data } = event.data;
+
+      switch (type) {
+        case 'ACTIVATE_EDITING':
+          setIsPreviewMode(true);
+          if (data.open !== undefined) {
+            setSidebarOpen(data.open);
+          }
+          break;
+          
+        case 'DEACTIVATE_EDITING':
+          setIsPreviewMode(false);
+          break;
+          
+        case 'TOGGLE_EDITING':
+          setIsPreviewMode(prev => !prev);
+          break;
+          
+        case 'TOGGLE_SIDEBAR':
+          setSidebarOpen(data.open);
+          break;
+          
+        case 'ADD_SECTION':
+          addSection(data.sectionType, data.position);
+          break;
+          
+        case 'REMOVE_SECTION':
+          removeSection(data.sectionId);
+          break;
+          
+        case 'NAVIGATE':
+          window.location.href = data.url;
+          break;
+          
+        case 'PUBLISH_CHANGES':
+          publishChanges();
+          break;
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [addSection, removeSection, publishChanges]);
+
+  // 🔥 NEW: Send data to toolbar app when ready
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Send initial data to toolbar app
+      window.parent.postMessage({
+        type: 'THEME_READY',
+        data: {
+          siteSlug,
+          pageType,
+          editedData,
+          sections: getSections(),
+          isPreviewMode,
+          sidebarOpen,
+        }
+      }, '*');
+    }
+  }, [siteSlug, pageType, getSections]);
+
+  // 🔥 NEW: Send updates when data changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.parent.postMessage({
+        type: 'THEME_UPDATED',
+        data: {
+          siteSlug,
+          pageType,
+          editedData,
+          sections: getSections(),
+          isPreviewMode,
+          sidebarOpen,
+        }
+      }, '*');
+    }
+  }, [editedData, getSections, isPreviewMode, sidebarOpen]);
 
   const contextValue: PreviewContextType = {
     isPreviewMode,

@@ -1,6 +1,10 @@
-export const API_BASE = 'http://localhost:8000';
+// Backend API base URL - separate service on port 8000
+export const API_BASE = process.env.NODE_ENV === 'production' 
+  ? 'https://your-domain.com' 
+  : 'http://localhost:8000';
 
 export function getApiUrl(path: string): string {
+  // Always use the backend API URL for external API calls
   const base = API_BASE.replace(/\/$/, '');
   const p = path.startsWith('/') ? path : `/${path}`;
   return `${base}${p}`;
