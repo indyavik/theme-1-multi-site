@@ -122,6 +122,39 @@ export function EditableImage({
     }
   }, [pendingDataUrl, isSmall])
 
+  // Listen for upload success/error from wrapper
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      // In production, verify origin for security
+      // if (event.origin !== 'http://localhost:3001') return;
+      
+      const { type, data } = event.data;
+      
+      if (type === 'FILE_UPLOAD_SUCCESS') {
+        console.log('Theme: File upload successful:', data);
+        setIsPublishing(false);
+        setError(null);
+        // Clear staged image and update to the new URL if provided
+        if (data.publicUrl) {
+          // Update the image source to the new URL from backend
+          setFinalSrc(data.publicUrl);
+        }
+        setPendingDataUrl(null);
+        // Notify the context that this field should be marked as having changes
+        if (data.path) {
+          updateField(data.path, data.publicUrl || data.fileUrl);
+        }
+      } else if (type === 'FILE_UPLOAD_ERROR') {
+        console.error('Theme: File upload error:', data.error);
+        setIsPublishing(false);
+        setError(data.error || 'Upload failed');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [updateField]);
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -184,15 +217,38 @@ export function EditableImage({
     if (!pendingDataUrl) return
     setIsPublishing(true)
     setError(null)
+    
+    // Feature flag for hybrid file upload
+    const USE_HYBRID_FILE_UPLOAD = true; // TODO: Move to config
+    
     try {
       const blob = dataUrlToBlob(pendingDataUrl)
       const fileNameFromPath = storedPath?.split('/').pop() || 'image'
+      const file = new File([blob], fileNameFromPath)
+      const currentSiteSlug = getValue('site.slug') as string
+
+      if (USE_HYBRID_FILE_UPLOAD) {
+        // Hybrid approach - send to wrapper
+        console.log('Theme: Using hybrid file upload approach');
+        if (typeof window !== 'undefined') {
+          window.parent.postMessage({
+            type: 'FILE_UPLOAD_READY',
+            data: {
+              file: file,
+              path: storedPath,
+              siteSlug: currentSiteSlug,
+              fileName: fileNameFromPath
+            }
+          }, '*');
+        }
+        return; // Exit early, wrapper will handle upload
+      }
+
+      // Legacy approach - direct upload (kept for fallback)
       const form = new FormData()
       form.append('path', storedPath)
-      // Use site slug from site-data instead of environment variable
-      const currentSiteSlug = getValue('site.slug') as string
       if (currentSiteSlug) form.append('siteSlug', currentSiteSlug)
-      form.append('file', new File([blob], fileNameFromPath))
+      form.append('file', file)
 
       const res = await fetch(getApiUrl('/api/sites/publish-image'), {
         method: 'POST',

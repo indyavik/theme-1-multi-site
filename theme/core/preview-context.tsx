@@ -483,6 +483,10 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
   // Tracks structural changes like add/remove/move section so Publish appears even with no field edits
   const [hasStructuralChanges, setHasStructuralChanges] = useState(false);
   
+  // Feature flag: Toggle between theme-based publish and wrapper-based publish
+  // Set to true to use new hybrid approach, false for legacy approach
+  const USE_HYBRID_PUBLISH = true; // Manual toggle for testing
+  
   // Determine context property name based on page type
   const getContextProperty = () => {
     switch (pageType) {
@@ -920,6 +924,38 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
 
   const publishChanges = async () => {
     try {
+      if (USE_HYBRID_PUBLISH) {
+        // NEW: Hybrid approach - let wrapper handle publish
+        console.log('Theme: Using hybrid publish approach - requesting payload');
+        
+        // Build publish-ready payload
+        const payloadSiteData = buildPublishPayload({
+          baseSiteData: initialData,
+          initialData,
+          editedData,
+          pageType: pageType || 'home',
+          currentLocale,
+          getSections,
+        });
+
+        // Send publish payload to wrapper app
+        if (typeof window !== 'undefined') {
+          window.parent.postMessage({
+            type: 'PUBLISH_PAYLOAD_READY',
+            data: {
+              payloadSiteData,
+              siteSlug: siteSlug || SITE_SLUG,
+              siteId: SITE_ID,
+              currentLocale
+            }
+          }, '*');
+        }
+        return; // Exit early - wrapper will handle the rest
+      }
+
+      // LEGACY: Original publish approach (direct from theme)
+      console.log('Theme: Using legacy publish approach - handling directly');
+      
       // 🔥 NEW: Notify toolbar that publishing started
       if (typeof window !== 'undefined') {
         window.parent.postMessage({
@@ -1090,6 +1126,36 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
           
         case 'DISCARD_CHANGES':
           discardChanges();
+          break;
+        
+        case 'PUBLISH_SUCCESS':
+          // Handle successful publish received from wrapper
+          console.log('Theme: Received publish success from wrapper');
+          setEditedData({});
+          setHasStructuralChanges(false);
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(`preview-${siteSlug || 'default'}`);
+          }
+          // Notify parent about success
+          if (typeof window !== 'undefined') {
+            window.parent.postMessage({
+              type: 'PUBLISH_SUCCESS',
+              data: {}
+            }, '*');
+          }
+          break;
+          
+        case 'PUBLISH_ERROR':
+          // Handle publish error received from wrapper
+          console.error('Theme: Received publish error from wrapper:', data.error);
+          if (typeof window !== 'undefined') {
+            window.parent.postMessage({
+              type: 'PUBLISH_ERROR',
+              data: { 
+                error: data.error
+              }
+            }, '*');
+          }
           break;
           
         case 'SCROLL_TO_SECTION':
