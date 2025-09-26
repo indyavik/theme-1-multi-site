@@ -477,7 +477,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
   // Currently hardcoded to true - needs authentication-based logic
   // See docs/PREVIEW_MODE_ENHANCEMENTS.md for implementation details
   // Should default to false and only enable with ?preview=true + authentication
-  const [isPreviewMode, setIsPreviewMode] = useState(false); // 🔥 Changed to false - controlled by toolbar
+  const [isPreviewMode, setIsPreviewMode] = useState(true); // 🔥 Force preview mode for toolbar integration
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editedData, setEditedData] = useState<Record<string, any>>({});
   // Tracks structural changes like add/remove/move section so Publish appears even with no field edits
@@ -1005,15 +1005,33 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
   };
 
   const discardChanges = () => {
+    console.log('Theme: Discarding changes, preserving original data structure');
     setEditedData({});
-    // Restore sections from initial page data to avoid empty page after discard
-    setSections(getInitialSections());
+    // Reset sections to original page-specific sections, not root-level sections
+    const originalSections = getInitialSections();
+    setSections(originalSections);
     setHasStructuralChanges(false);
     if (typeof window !== 'undefined') {
       localStorage.removeItem(`preview-${siteSlug || 'default'}`);
-      // Ensure we display the most recent site data from the server (noStore paths)
-      try { window.location.reload(); } catch {}
     }
+    
+    // Send updated data back to toolbar with clean state
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.parent.postMessage({
+          type: 'DISCARD_SUCCESS',
+          data: {
+            siteSlug,
+            pageType,
+            editedData: {},
+            sections: getSections(),
+            pages: initialData?.pages,
+            isPreviewMode,
+            sidebarOpen,
+          }
+        }, '*');
+      }
+    }, 100);
   };
 
   const hasChanges = hasStructuralChanges || Object.keys(editedData).length > 0;
@@ -1031,9 +1049,11 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       // if (event.origin !== 'http://localhost:3001') return;
       
       const { type, data } = event.data;
+      console.log('Theme: Received message:', type, data);
 
       switch (type) {
         case 'ACTIVATE_EDITING':
+          console.log('Theme: Activating editing mode');
           setIsPreviewMode(true);
           if (data.open !== undefined) {
             setSidebarOpen(data.open);
@@ -1067,6 +1087,68 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
         case 'PUBLISH_CHANGES':
           publishChanges();
           break;
+          
+        case 'DISCARD_CHANGES':
+          discardChanges();
+          break;
+          
+        case 'SCROLL_TO_SECTION':
+        case 'SCROLL_TO_ELEMENT':
+          // Handle section navigation
+          const elementId = data.sectionId || data.elementId;
+          console.log(`Theme: Received scroll request for section: ${elementId}`);
+          
+          if (elementId) {
+            // Try multiple ID formats that might be used
+            const possibleIds = [
+              elementId,                    // Direct ID (e.g., "about")
+              `section-${elementId}`,      // Section ID format (e.g., "section-about")
+              `#${elementId}`,             // CSS selector format
+              `#section-${elementId}`      // CSS selector with section prefix
+            ];
+            
+            console.log(`Theme: Trying IDs:`, possibleIds);
+            
+            let element = null;
+            for (const id of possibleIds) {
+              console.log(`Theme: Looking for element with ID: ${id}`);
+              element = document.getElementById(id) || document.querySelector(id);
+              if (element) {
+                console.log(`Theme: Found element with ID: ${id}`, element);
+                break;
+              }
+            }
+            
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              console.log(`Theme: Scrolled to section: ${elementId}`);
+            } else {
+              console.log(`Theme: Could not find section with ID: ${elementId}`);
+              console.log(`Theme: Available elements with IDs:`, 
+                Array.from(document.querySelectorAll('[id]')).map(el => el.id)
+              );
+              
+              // Try to find by section type or other patterns as fallback
+              const possibleSelectors = [
+                `[data-section-id="${elementId}"]`,
+                `[data-section="${elementId}"]`,
+                `.${elementId}`,
+                `section[id*="${elementId}"]`
+              ];
+              
+              console.log(`Theme: Trying fallback selectors:`, possibleSelectors);
+              
+              for (const selector of possibleSelectors) {
+                const found = document.querySelector(selector);
+                if (found) {
+                  found.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  console.log(`Theme: Found section via selector: ${selector}`);
+                  break;
+                }
+              }
+            }
+          }
+          break;
       }
     };
 
@@ -1077,20 +1159,26 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
   // 🔥 NEW: Send data to toolbar app when ready
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // Send initial data to toolbar app
+      const sections = getSections();
+      console.log('Theme: Available sections:', sections);
+      console.log('Theme: Section IDs:', sections.map(s => s.id));
+      console.log('Theme: Initial data pages:', initialData?.pages);
+      
+      // Send initial data to toolbar app with complete theme data
       window.parent.postMessage({
         type: 'THEME_READY',
         data: {
           siteSlug,
           pageType,
           editedData,
-          sections: getSections(),
+          sections: sections,
+          pages: initialData?.pages, // Include the complete pages structure
           isPreviewMode,
           sidebarOpen,
         }
       }, '*');
     }
-  }, [siteSlug, pageType, getSections]);
+  }, [siteSlug, pageType, getSections, initialData]);
 
   // 🔥 NEW: Send updates when data changes
   useEffect(() => {
@@ -1102,12 +1190,13 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
           pageType,
           editedData,
           sections: getSections(),
+          pages: initialData?.pages, // Include the complete pages structure
           isPreviewMode,
           sidebarOpen,
         }
       }, '*');
     }
-  }, [editedData, getSections, isPreviewMode, sidebarOpen]);
+  }, [editedData, getSections, isPreviewMode, sidebarOpen, initialData]);
 
   const contextValue: PreviewContextType = {
     isPreviewMode,
@@ -1435,7 +1524,6 @@ export function PreviewToolbar() {
     publishChanges,
     discardChanges,
     editedData,
-    hasChanges,
     sidebarOpen,
     setSidebarOpen,
     getValue,
@@ -1515,13 +1603,9 @@ export function PreviewToolbar() {
               <span>{isPreviewMode ? 'Editing ON' : 'Editing OFF'}</span>
             </label>
 
-            {hasChanges && (
+            {changesCount > 0 && (
               <div className="hidden sm:flex items-center gap-2 ml-3">
-                {changesCount > 0 ? (
-                  <span className="text-[11px] text-blue-200">{changesCount} edit{changesCount !== 1 ? 's' : ''}</span>
-                ) : (
-                  <span className="text-[11px] text-blue-200">Structural changes</span>
-                )}
+                <span className="text-[11px] text-blue-200">{changesCount} edit{changesCount !== 1 ? 's' : ''}</span>
                 <button
                   onClick={publishChanges}
                   className="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white text-[11px] rounded"
