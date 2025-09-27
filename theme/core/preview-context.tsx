@@ -1122,13 +1122,25 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       console.log('Theme: Section IDs:', sections.map(s => s.id));
       console.log('Theme: Initial data pages:', initialData?.pages);
       
+      // Build pages payload from siteSchema (source of truth for paths) + attach current sections
+      const pagesFromSchema: any = Object.fromEntries(
+        Object.entries(siteSchema.pages).map(([key, val]: [string, any]) => [
+          key,
+          {
+            path: val.path,
+            allowedSectionTypes: val.allowedSectionTypes,
+            sections: initialData?.pages?.[key]?.sections || []
+          }
+        ])
+      );
+
       // Send initial data to toolbar app with complete theme data
       postToParent('THEME_READY', {
         siteSlug,
         pageType,
         editedData,
         sections: sections,
-        pages: initialData?.pages, // Include the complete pages structure
+        pages: pagesFromSchema, // Include schema-driven paths + current sections
         isPreviewMode,
         sidebarOpen,
       });
@@ -1138,12 +1150,22 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
   // 🔥 NEW: Send updates when data changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const pagesFromSchema: any = Object.fromEntries(
+        Object.entries(siteSchema.pages).map(([key, val]: [string, any]) => [
+          key,
+          {
+            path: val.path,
+            allowedSectionTypes: val.allowedSectionTypes,
+            sections: initialData?.pages?.[key]?.sections || []
+          }
+        ])
+      );
       postToParent('THEME_UPDATED', {
         siteSlug,
         pageType,
         editedData,
         sections: getSections(),
-        pages: initialData?.pages, // Include the complete pages structure
+        pages: pagesFromSchema, // Include schema-driven paths + current sections
         isPreviewMode,
         sidebarOpen,
       });
