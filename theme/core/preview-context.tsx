@@ -31,6 +31,13 @@ import { getApiUrl, SITE_SLUG, SITE_ID, getAuthHeader } from '@/theme/lib/theme-
 import { LocalizedValue, FieldSchema, ExtendedFieldType, siteSchema } from '../site-schema';
 import { EditableSection } from '@/theme/core/editable-section';
 
+// Prevent self-messaging loops when not embedded (window.parent === window)
+function postToParent(type: string, data?: any) {
+  if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+    window.parent.postMessage({ type, data }, '*');
+  }
+}
+
 // Utility functions for deep object path operations
 function get(obj: any, path: string): any {
   if (!path || typeof path !== 'string') {
@@ -137,85 +144,7 @@ function set(obj: any, path: string, value: any, baseObj?: any): any {
   return inner(obj, 0, baseObj);
 }
 
-// Helper function to extract data from the new config structure
-function extractDataFromConfig() {
-  return {
-    site: siteData.site,
-    features: siteData.features,
-    pages: siteData.pages,
-    // For backward compatibility, also provide sections at root level
-    sections: siteData.pages?.home?.sections || []
-  }
-}
-
-// Helper function to create schema from config - Updated for new sectionTypes structure
-function createSchemaFromConfig() {
-  return {
-    site: siteSchema.site,
-    features: siteSchema.features,
-    sectionTypes: siteSchema.sectionTypes,
-    pages: siteSchema.pages,
-    sections: (siteData.pages?.home?.sections || []).map((section: any) => {
-      const sectionType = section.type;
-      const baseSectionSchema: any = (siteSchema.sectionTypes as any)[sectionType]?.schema || {};
-      const dataSchema: any = Object.fromEntries(
-        Object.entries(baseSectionSchema).map(([key, fieldSchema]: [string, any]) => {
-          if (fieldSchema && typeof fieldSchema === 'object' && fieldSchema.type === 'array') {
-            const dataArray = (section.data as any)[key] || [];
-
-            if (fieldSchema.itemSchema) {
-              const itemTemplate = fieldSchema.itemSchema;
-              const items = (Array.isArray(dataArray) ? dataArray : []).map(() => {
-                if (itemTemplate && typeof itemTemplate === 'object' && !('type' in itemTemplate)) {
-                  return Object.fromEntries(
-                    Object.entries(itemTemplate).map(([ik, iv]: [string, any]) => [ik, iv])
-                  );
-                }
-                return itemTemplate;
-              });
-
-              return [
-                key,
-                {
-                  type: 'array',
-                  editable: fieldSchema.editable,
-                  description: fieldSchema.description,
-                  items,
-                },
-              ];
-            }
-
-            const items = (Array.isArray(dataArray) ? dataArray : []).map(() => ({
-              type: 'string',
-              editable: true,
-              description: 'Array item',
-            }));
-
-            return [
-              key,
-              {
-                type: 'array',
-                editable: fieldSchema.editable,
-                description: fieldSchema.description,
-                items,
-              },
-            ];
-          }
-
-          return [key, fieldSchema];
-        })
-      );
-
-      return {
-        id: section.id,
-        type: section.type,
-        enabled: section.enabled,
-        order: section.order,
-        data: dataSchema,
-      };
-    }),
-  };
-}
+// (legacy helpers removed)
 
 // Section configuration for available section types
 // Removed hardcoded registry; we now read from schema.sectionTypes
@@ -485,7 +414,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
   
   // Feature flag: Toggle between theme-based publish and wrapper-based publish
   // Set to true to use new hybrid approach, false for legacy approach
-  const USE_HYBRID_PUBLISH = true; // Manual toggle for testing
+  const USE_HYBRID_PUBLISH = true ;// Manual toggle for testing
   
   // Determine context property name based on page type
   const getContextProperty = () => {
@@ -939,17 +868,12 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
         });
 
         // Send publish payload to wrapper app
-        if (typeof window !== 'undefined') {
-          window.parent.postMessage({
-            type: 'PUBLISH_PAYLOAD_READY',
-            data: {
-              payloadSiteData,
-              siteSlug: siteSlug || SITE_SLUG,
-              siteId: SITE_ID,
-              currentLocale
-            }
-          }, '*');
-        }
+        postToParent('PUBLISH_PAYLOAD_READY', {
+          payloadSiteData,
+          siteSlug: siteSlug || SITE_SLUG,
+          siteId: SITE_ID,
+          currentLocale
+        });
         return; // Exit early - wrapper will handle the rest
       }
 
@@ -957,12 +881,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       console.log('Theme: Using legacy publish approach - handling directly');
       
       // 🔥 NEW: Notify toolbar that publishing started
-      if (typeof window !== 'undefined') {
-        window.parent.postMessage({
-          type: 'PUBLISH_START',
-          data: {}
-        }, '*');
-      }
+      postToParent('PUBLISH_START', {});
 
       // Build publish-ready siteData:
       // - Clone base site data
@@ -1012,12 +931,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       }
 
       // 🔥 NEW: Notify toolbar of success
-      if (typeof window !== 'undefined') {
-        window.parent.postMessage({
-          type: 'PUBLISH_SUCCESS',
-          data: {}
-        }, '*');
-      }
+      postToParent('PUBLISH_SUCCESS', {});
 
       // On success: reset edits and autosave
       setEditedData({});
@@ -1029,14 +943,9 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       console.error('Error publishing changes:', error);
       
       // 🔥 NEW: Notify toolbar of error
-      if (typeof window !== 'undefined') {
-        window.parent.postMessage({
-          type: 'PUBLISH_ERROR',
-          data: { 
-            error: error instanceof Error ? error.message : String(error)
-          }
-        }, '*');
-      }
+      postToParent('PUBLISH_ERROR', { 
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   };
 
@@ -1053,20 +962,15 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
     
     // Send updated data back to toolbar with clean state
     setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        window.parent.postMessage({
-          type: 'DISCARD_SUCCESS',
-          data: {
-            siteSlug,
-            pageType,
-            editedData: {},
-            sections: getSections(),
-            pages: initialData?.pages,
-            isPreviewMode,
-            sidebarOpen,
-          }
-        }, '*');
-      }
+      postToParent('DISCARD_SUCCESS', {
+        siteSlug,
+        pageType,
+        editedData: {},
+        sections: getSections(),
+        pages: initialData?.pages,
+        isPreviewMode,
+        sidebarOpen,
+      });
     }, 100);
   };
 
@@ -1137,25 +1041,13 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
             localStorage.removeItem(`preview-${siteSlug || 'default'}`);
           }
           // Notify parent about success
-          if (typeof window !== 'undefined') {
-            window.parent.postMessage({
-              type: 'PUBLISH_SUCCESS',
-              data: {}
-            }, '*');
-          }
+          postToParent('PUBLISH_SUCCESS', {});
           break;
           
         case 'PUBLISH_ERROR':
           // Handle publish error received from wrapper
           console.error('Theme: Received publish error from wrapper:', data.error);
-          if (typeof window !== 'undefined') {
-            window.parent.postMessage({
-              type: 'PUBLISH_ERROR',
-              data: { 
-                error: data.error
-              }
-            }, '*');
-          }
+          postToParent('PUBLISH_ERROR', { error: data.error });
           break;
           
         case 'SCROLL_TO_SECTION':
@@ -1231,36 +1123,30 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       console.log('Theme: Initial data pages:', initialData?.pages);
       
       // Send initial data to toolbar app with complete theme data
-      window.parent.postMessage({
-        type: 'THEME_READY',
-        data: {
-          siteSlug,
-          pageType,
-          editedData,
-          sections: sections,
-          pages: initialData?.pages, // Include the complete pages structure
-          isPreviewMode,
-          sidebarOpen,
-        }
-      }, '*');
+      postToParent('THEME_READY', {
+        siteSlug,
+        pageType,
+        editedData,
+        sections: sections,
+        pages: initialData?.pages, // Include the complete pages structure
+        isPreviewMode,
+        sidebarOpen,
+      });
     }
   }, [siteSlug, pageType, getSections, initialData]);
 
   // 🔥 NEW: Send updates when data changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      window.parent.postMessage({
-        type: 'THEME_UPDATED',
-        data: {
-          siteSlug,
-          pageType,
-          editedData,
-          sections: getSections(),
-          pages: initialData?.pages, // Include the complete pages structure
-          isPreviewMode,
-          sidebarOpen,
-        }
-      }, '*');
+      postToParent('THEME_UPDATED', {
+        siteSlug,
+        pageType,
+        editedData,
+        sections: getSections(),
+        pages: initialData?.pages, // Include the complete pages structure
+        isPreviewMode,
+        sidebarOpen,
+      });
     }
   }, [editedData, getSections, isPreviewMode, sidebarOpen, initialData]);
 

@@ -4,7 +4,7 @@ export const API_BASE = process.env.NODE_ENV === 'production'
   : 'http://localhost:8000';
 
 export function getApiUrl(path: string): string {
-  // Always use the backend API URL for external API calls
+  // Always use the backend API base (dev: http://localhost:8000)
   const base = API_BASE.replace(/\/$/, '');
   const p = path.startsWith('/') ? path : `/${path}`;
   return `${base}${p}`;

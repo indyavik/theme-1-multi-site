@@ -463,18 +463,23 @@ export const siteSchema = {
   },
   pages: {
     home: {
+      path: '/',
       allowedSectionTypes: ["hero", "about", "services", "team", "contact", "testimonials", "whyChooseUs", "industriesServed", "blogTeaser"]
     },
     "service-detail": {
+      path: '/services/[slug]',
       allowedSectionTypes: ["serviceHero", "serviceDescription", "servicePricing", "serviceContact"]
     },
     "about-us": {
+      path: '/about-us',
       allowedSectionTypes: ["aboutUsHero"]
     },
     "blog-index": {
+      path: '/blog',
       allowedSectionTypes: ["blogList"]
     },
     "blog-post": {
+      path: '/blog/[slug]',
       allowedSectionTypes: ["blogArticle"]
     }
   }
