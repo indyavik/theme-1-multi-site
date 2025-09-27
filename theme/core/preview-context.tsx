@@ -437,6 +437,19 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
     return initialData.sections || [];
   };
   
+  
+  // Derive siteSlug from URL if not provided
+  const deriveSiteSlug = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        const s = new URLSearchParams(window.location.search).get('site');
+        if (s) return s;
+      }
+    } catch {}
+    return siteSlug; // fallback to prop
+  };
+  const effectiveSiteSlug = deriveSiteSlug();
+
   const [sections, setSections] = useState(getInitialSections());
   
   // Locale state
@@ -543,7 +556,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
           
           // Auto-save to localStorage for persistence
           if (typeof window !== 'undefined') {
-            const storageKey = `preview-${siteSlug || 'default'}`;
+            const storageKey = `preview-${effectiveSiteSlug || 'default'}`;
             localStorage.setItem(storageKey, JSON.stringify(finalData));
           }
           
@@ -555,7 +568,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       const newData = set(prev, path, processedValue, initialData);
       // Auto-save to localStorage for persistence
       if (typeof window !== 'undefined') {
-        const storageKey = `preview-${siteSlug || 'default'}`;
+        const storageKey = `preview-${effectiveSiteSlug || 'default'}`;
         localStorage.setItem(storageKey, JSON.stringify(newData));
       }
       return newData;
@@ -870,7 +883,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
         // Send publish payload to wrapper app
         postToParent('PUBLISH_PAYLOAD_READY', {
           payloadSiteData,
-          siteSlug: siteSlug || SITE_SLUG,
+          siteSlug: effectiveSiteSlug || SITE_SLUG,
           siteId: SITE_ID,
           currentLocale
         });
@@ -937,7 +950,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
       setEditedData({});
       setHasStructuralChanges(false);
       if (typeof window !== 'undefined') {
-        localStorage.removeItem(`preview-${siteSlug || 'default'}`);
+        localStorage.removeItem(`preview-${effectiveSiteSlug || 'default'}`);
       }
     } catch (error) {
       console.error('Error publishing changes:', error);
@@ -957,13 +970,13 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
     setSections(originalSections);
     setHasStructuralChanges(false);
     if (typeof window !== 'undefined') {
-      localStorage.removeItem(`preview-${siteSlug || 'default'}`);
+      localStorage.removeItem(`preview-${effectiveSiteSlug || 'default'}`);
     }
     
     // Send updated data back to toolbar with clean state
     setTimeout(() => {
       postToParent('DISCARD_SUCCESS', {
-        siteSlug,
+        siteSlug: effectiveSiteSlug,
         pageType,
         editedData: {},
         sections: getSections(),
@@ -1038,7 +1051,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
           setEditedData({});
           setHasStructuralChanges(false);
           if (typeof window !== 'undefined') {
-            localStorage.removeItem(`preview-${siteSlug || 'default'}`);
+            localStorage.removeItem(`preview-${effectiveSiteSlug || 'default'}`);
           }
           // Notify parent about success
           postToParent('PUBLISH_SUCCESS', {});
@@ -1136,7 +1149,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
 
       // Send initial data to toolbar app with complete theme data
       postToParent('THEME_READY', {
-        siteSlug,
+        siteSlug: effectiveSiteSlug,
         pageType,
         editedData,
         sections: sections,
@@ -1145,7 +1158,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
         sidebarOpen,
       });
     }
-  }, [siteSlug, pageType, getSections, initialData]);
+  }, [effectiveSiteSlug, pageType, getSections, initialData]);
 
   // 🔥 NEW: Send updates when data changes
   useEffect(() => {
@@ -1161,7 +1174,7 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
         ])
       );
       postToParent('THEME_UPDATED', {
-        siteSlug,
+        siteSlug: effectiveSiteSlug,
         pageType,
         editedData,
         sections: getSections(),
