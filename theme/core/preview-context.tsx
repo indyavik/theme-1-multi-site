@@ -1185,6 +1185,20 @@ export function PreviewProvider({ children, initialData, schema, siteSlug, pageT
     }
   }, [editedData, getSections, isPreviewMode, sidebarOpen, initialData]);
 
+  // Disable in-page anchor navigation while in preview mode (prevents accidental scrolling when editing)
+  useEffect(() => {
+    if (!isPreviewMode) return;
+    const onClickCapture = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      const anchor = target && (target.closest ? target.closest('a[href^="#"]') as HTMLAnchorElement | null : null);
+      if (anchor) {
+        event.preventDefault();
+      }
+    };
+    document.addEventListener('click', onClickCapture, true);
+    return () => document.removeEventListener('click', onClickCapture, true);
+  }, [isPreviewMode]);
+
   const contextValue: PreviewContextType = {
     isPreviewMode,
     setIsPreviewMode,
