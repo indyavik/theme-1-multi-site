@@ -60,9 +60,9 @@ export function EditableSection({
   const [isDragging, setIsDragging] = useState(false);
   const [dragOverPosition, setDragOverPosition] = useState<'before' | 'after' | null>(null);
 
-  // If not in preview mode, render normally
+  // If not in preview mode, render normally but keep an anchor id for in-page links
   if (!isPreviewMode) {
-    return <div className={className}>{children}</div>;
+    return <div id={`section-${sectionId}`} className={className}>{children}</div>;
   }
 
   const handleRemove = () => {
